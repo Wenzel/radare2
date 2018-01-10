@@ -56,6 +56,8 @@ static RIODesc *__open(RIO *io, const char *file, int rw, int mode) {
 	int i_port = -1;
 	bool isdev = false;
 
+    r_sys_backtrace();
+    printf("%s, %s\n", __func__, __FILE__);
 	if (!__plugin_open (io, file, 0)) {
 		return NULL;
 	}
