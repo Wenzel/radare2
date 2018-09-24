@@ -57,6 +57,7 @@ R_API void r_debug_bp_update(RDebug *dbg) {
 static int r_debug_bp_hit(RDebug *dbg, RRegItem *pc_ri, ut64 pc, RBreakpointItem **pb) {
 	RBreakpointItem *b;
 
+    eprintf("%s\n", __func__);
 	if (!pb) {
 		eprintf ("BreakpointItem is NULL!\n");
 		return false;
@@ -750,6 +751,7 @@ R_API int r_debug_step_soft(RDebug *dbg) {
 		ut32 r32[2];
 	} memval;
 
+    eprintf("%s\n", __func__);
 	if (dbg->recoil_mode == R_DBG_RECOIL_NONE) {
 		dbg->recoil_mode = R_DBG_RECOIL_STEP;
 	}
@@ -1090,6 +1092,7 @@ R_API int r_debug_continue_kill(RDebug *dbg, int sig) {
 	RDebugReasonType reason, ret = false;
 	RBreakpointItem *bp = NULL;
 
+    eprintf("%s\n", __func__);
 	if (!dbg) {
 		return false;
 	}
