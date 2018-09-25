@@ -83,6 +83,7 @@ static int r_debug_bp_hit(RDebug *dbg, RRegItem *pc_ri, ut64 pc, RBreakpointItem
 	/* if we are recoiling, tell r_debug_step that we ignored a breakpoint
 	 * event */
 	if (!dbg->swstep && dbg->recoil_mode != R_DBG_RECOIL_NONE) {
+        eprintf("%s: we are recoiling, tell r_debug_step we ignore a bp\n", __func__);
 		dbg->reason.bp_addr = 0;
 		return true;
 	}
@@ -97,20 +98,25 @@ static int r_debug_bp_hit(RDebug *dbg, RRegItem *pc_ri, ut64 pc, RBreakpointItem
 # else
 	int pc_off = dbg->bpsize;
 	/* see if we really have a breakpoint here... */
+    eprintf("%s: check if we really have a breakpoint here\n", __func__);
 	if (!dbg->pc_at_bp_set) {
 		b = r_bp_get_at (dbg->bp, pc - dbg->bpsize);
 		if (!b) { /* we don't. nothing left to do */
+            eprintf("%s: we don't\n", __func__);
 			/* Some targets set pc to breakpoint */
 			b = r_bp_get_at (dbg->bp, pc);
 			if (!b) {
+                eprintf("%s: couldn't find the breakpoint\n", __func__);
 				/* Couldn't find the break point. Nothing more to do... */
 				return true;
 			}
 			else {
+                eprintf("%s: we do\n", __func__);
 				dbg->pc_at_bp_set = true;
 				dbg->pc_at_bp = true;
 			}
 		} else {
+            eprintf("%s: we do\n", __func__);
 			dbg->pc_at_bp_set = true;
 			dbg->pc_at_bp = false;
 		}
@@ -159,11 +165,13 @@ static int r_debug_bp_hit(RDebug *dbg, RRegItem *pc_ri, ut64 pc, RBreakpointItem
 
 	/* if we are on a software stepping breakpoint, we hide what is going on... */
 	if (b->swstep) {
+        eprintf("%s: we are on a soft bp, hide what is going on\n", __func__);
 		dbg->reason.bp_addr = 0;
 		return true;
 	}
 
 	/* setup our stage 2 */
+    eprintf("%s: setup stage2 recoiling\n", __func__);
 	dbg->reason.bp_addr = b->addr;
 
 	/* inform the user of what happened */
@@ -185,6 +193,7 @@ static int r_debug_bp_hit(RDebug *dbg, RRegItem *pc_ri, ut64 pc, RBreakpointItem
 
 /* enable all software breakpoints */
 static int r_debug_bps_enable(RDebug *dbg) {
+    eprintf("%s\n", __func__);
 	/* restore all sw breakpoints. we are about to step/continue so these need
 	 * to be in place. */
 	if (!r_bp_restore (dbg->bp, true)) {
@@ -208,8 +217,10 @@ static int r_debug_bps_enable(RDebug *dbg) {
  * if the user wants to step, the single step here does the job.
  */
 static int r_debug_recoil(RDebug *dbg, RDebugRecoilMode rc_mode) {
+    eprintf("%s\n", __func__);
 	/* if bp_addr is not set, we must not have actually hit a breakpoint */
 	if (!dbg->reason.bp_addr) {
+        eprintf("%s: not actually a bp, bp_addr is not set\n", __func__);
 		return r_debug_bps_enable (dbg);
 	}
 
@@ -233,6 +244,7 @@ static int r_debug_recoil(RDebug *dbg, RDebugRecoilMode rc_mode) {
 
 	/* we have entered recoil! */
 	dbg->recoil_mode = rc_mode;
+    eprintf("%s: entered recoil mode\n", __func__);
 
 	/* step over the place with the breakpoint and let the caller resume */
 	if (r_debug_step (dbg, 1) != 1) {
@@ -849,6 +861,7 @@ R_API int r_debug_step_soft(RDebug *dbg) {
 R_API int r_debug_step_hard(RDebug *dbg) {
 	RDebugReasonType reason;
 
+    eprintf("%s\n", __func__);
 	dbg->reason.type = R_DEBUG_REASON_STEP;
 	if (r_debug_is_dead (dbg)) {
 		return false;
